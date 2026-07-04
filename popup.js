@@ -4,12 +4,17 @@ const targetLangEl = document.getElementById('targetLang')
 const onlyCommentsEl = document.getElementById('onlyComments')
 const statusEl = document.getElementById('status')
 let isLoading = true
+let statusTimeoutId = null
 
 function showStatus (text) {
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId)
+  }
   statusEl.textContent = text
   statusEl.classList.add('visible')
-  setTimeout(() => {
+  statusTimeoutId = setTimeout(() => {
     statusEl.classList.remove('visible')
+    statusTimeoutId = null
   }, 1500)
 }
 
