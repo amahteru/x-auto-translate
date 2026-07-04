@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Auto Translator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "在 X 中自动将外语推文和评论翻译为中文。",
   "permissions": [
     "activeTab",
