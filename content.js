@@ -208,8 +208,6 @@ function injectFakeGrokTranslation (textBox, translatedText, detectedLang, provi
     const existingContainers = textBox.parentElement.querySelectorAll('.x-auto-translate-container')
     existingContainers.forEach(c => c.remove())
   }
-  const tbState = getState(textBox)
-  tbState.hasFakeTranslation = true
 
   const container = document.createElement('div')
   container.className = 'x-auto-translate-container'
