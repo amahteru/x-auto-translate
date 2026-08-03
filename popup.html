@@ -72,7 +72,7 @@
           </svg>
           翻译设置
         </span>
-        <span class="settings-arrow" id="settingsArrow">
+        <span class="settings-arrow open" id="settingsArrow">
           <svg
             width="14"
             height="14"
@@ -87,13 +87,13 @@
           </svg>
         </span>
       </div>
-      <div class="settings-content" id="settingsContent">
+      <div class="settings-content open" id="settingsContent">
         <div class="control-group">
           <label for="onlyComments">仅自动翻译评论区</label>
           <input type="checkbox" id="onlyComments" />
         </div>
         <div class="control-group">
-          <label for="targetLang">目标语言</label>
+          <label for="targetLang" style="cursor: default;">目标语言</label>
           <select
             id="targetLang"
             style="
@@ -113,8 +113,8 @@
             <option value="ko">한국어</option>
           </select>
         </div>
-        <div class="control-group" style="flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
-          <label for="deeplApiKey" style="font-size: 13px;">DeepL API Key <span style="font-size: 11px; color: #888; font-weight: normal;">(可选)</span></label>
+        <div class="control-group" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+          <label for="deeplApiKey" style="font-size: 13px; cursor: default;">DeepL API Key <span style="font-size: 11px; color: #888; font-weight: normal;">(可选)</span></label>
           <input type="text" id="deeplApiKey" placeholder="留空则使用默认谷歌接口" style="
               width: 100%;
               background: var(--bg);
