@@ -20,6 +20,16 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 loadSettings()
 
+const nodeStateMap = new WeakMap()
+
+function getState (node) {
+  let state = nodeStateMap.get(node)
+  if (!state) {
+    state = {}
+    nodeStateMap.set(node, state)
+  }
+  return state
+}
 function getPageContext () {
   const urlMatch = window.location.pathname.match(/\/status\/(\d+)/i)
   return {
@@ -198,7 +208,8 @@ function injectFakeGrokTranslation (textBox, translatedText, detectedLang, provi
     const existingContainers = textBox.parentElement.querySelectorAll('.x-auto-translate-container')
     existingContainers.forEach(c => c.remove())
   }
-  textBox.dataset.hasFakeTranslation = 'true'
+  const tbState = getState(textBox)
+  tbState.hasFakeTranslation = true
 
   const container = document.createElement('div')
   container.className = 'x-auto-translate-container'
@@ -358,8 +369,9 @@ function doAsyncTranslate (textBox, sourceText, entityMap) {
         }
       }
     } else {
-      delete textBox.dataset.translatedText
-      textBox.dataset.translationFailTime = Date.now().toString()
+      const tbState = getState(textBox)
+      delete tbState.translatedText
+      tbState.translationFailTime = Date.now()
     }
   })
 }
@@ -372,7 +384,8 @@ function checkAllTweets (specificTweets = null) {
   if (!tweets || tweets.length === 0) return
 
   tweets.forEach((tweet) => {
-    if (tweet.dataset.ignorePluginTranslate === 'true') return
+    const tweetState = getState(tweet)
+    if (tweetState.ignorePluginTranslate) return
 
     let hasNativeTranslated = false
     const textContent = tweet.textContent || ''
@@ -390,7 +403,7 @@ function checkAllTweets (specificTweets = null) {
     }
 
     if (hasNativeTranslated) {
-      tweet.dataset.ignorePluginTranslate = 'true'
+      tweetState.ignorePluginTranslate = true
       return
     }
 
@@ -411,11 +424,12 @@ function checkAllTweets (specificTweets = null) {
     const { sourceText, entityMap } = extractRichText(textBox)
     if (!sourceText || sourceText.trim() === '') return
 
-    if (textBox.dataset.translatedText === sourceText) return
-    const failTime = parseInt(textBox.dataset.translationFailTime || '0', 10)
+    const tbState = getState(textBox)
+    if (tbState.translatedText === sourceText) return
+    const failTime = tbState.translationFailTime || 0
     if (Date.now() - failTime < 10000) return
 
-    textBox.dataset.translatedText = sourceText
+    tbState.translatedText = sourceText
 
     const result = translationCache.get(sourceText)
 
@@ -433,13 +447,14 @@ function checkAllTweets (specificTweets = null) {
   })
 }
 
+let observerFlushScheduled = false
+const pendingTweets = new Set()
+
 const domObserver = new MutationObserver((mutations) => {
   if (!isExtensionAlive()) {
     domObserver.disconnect()
     return
   }
-
-  const pendingTweets = new Set()
 
   for (const mutation of mutations) {
     for (const node of mutation.addedNodes) {
@@ -464,8 +479,15 @@ const domObserver = new MutationObserver((mutations) => {
     }
   }
 
-  if (pendingTweets.size > 0) {
-    checkAllTweets(Array.from(pendingTweets))
+  if (pendingTweets.size > 0 && !observerFlushScheduled) {
+    observerFlushScheduled = true
+    queueMicrotask(() => {
+      observerFlushScheduled = false
+      if (pendingTweets.size > 0) {
+        checkAllTweets(Array.from(pendingTweets))
+        pendingTweets.clear()
+      }
+    })
   }
 })
 
