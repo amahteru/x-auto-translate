@@ -9,8 +9,9 @@
     "storage"
   ],
   "host_permissions": [
-    "*://edge.microsoft.com/*",
-    "*://*.cognitive.microsofttranslator.com/*"
+    "*://translate.googleapis.com/*",
+    "*://api-free.deepl.com/*",
+    "*://api.deepl.com/*"
   ],
   "background": {
     "service_worker": "background.js"
