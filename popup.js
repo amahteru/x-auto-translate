@@ -42,7 +42,6 @@ targetLangEl.addEventListener('change', () => autoSave());
 onlyCommentsEl.addEventListener('change', () => autoSave());
 deeplApiKeyEl.addEventListener('change', () => autoSave());
 deeplApiKeyEl.addEventListener('input', () => {
-  // autoSave is debounced via change event, but we can also trigger on input if we want, or just wait for blur
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
