@@ -3,11 +3,7 @@
   "name": "X Auto Translator",
   "version": "1.0.1",
   "description": "在 X 中自动将外语推文和评论翻译为中文。",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
+  "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "*://translate.googleapis.com/*",
     "*://api-free.deepl.com/*",
