@@ -41,8 +41,7 @@ enableToggleEl.addEventListener('change', () => {
 targetLangEl.addEventListener('change', () => autoSave());
 onlyCommentsEl.addEventListener('change', () => autoSave());
 deeplApiKeyEl.addEventListener('change', () => autoSave());
-deeplApiKeyEl.addEventListener('input', () => {
-});
+deeplApiKeyEl.addEventListener('input', () => {});
 
 document.addEventListener('DOMContentLoaded', async () => {
   const settingsHeader = document.getElementById('settingsHeader');
