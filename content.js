@@ -462,7 +462,7 @@
       const failTime = tbState.translationFailTime || 0;
 
       if (tbState.quickHash === currentHash) {
-        if (tbState.translatedText || (Date.now() - failTime < 10000)) {
+        if (tbState.translatedText || Date.now() - failTime < 10000) {
           return;
         }
       }
