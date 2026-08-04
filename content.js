@@ -495,9 +495,7 @@
       if (!/\p{L}/u.test(textWithoutMarkers)) return;
 
       if (settings.targetLang.startsWith('zh')) {
-        const lettersOnly = textWithoutMarkers.replace(/[^\p{L}]/gu, '');
-        const hasOtherLetters = /[^\u4e00-\u9fa5]/.test(lettersOnly);
-        if (!hasOtherLetters) return;
+        if (!/[^\u4e00-\u9fa5\P{L}]/u.test(textWithoutMarkers)) return;
       }
 
       if (tbState.translatedText === sourceText) {
