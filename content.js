@@ -456,6 +456,9 @@
       const { sourceText, entityMap } = extractRichText(textBox);
       if (!sourceText || sourceText.trim() === '') return;
 
+      const textWithoutMarkers = sourceText.replace(/__X_TRANSLATE_\d+__/g, '').trim();
+      if (textWithoutMarkers === '') return;
+
       const tbState = getState(textBox);
       if (tbState.translatedText === sourceText) return;
       const failTime = tbState.translationFailTime || 0;
