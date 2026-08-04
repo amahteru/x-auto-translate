@@ -453,18 +453,32 @@
       const textBox = tweet.querySelector('[data-testid="tweetText"]');
       if (!textBox) return;
 
+      const tbState = getState(textBox);
+      const currentHash = textBox.textContent || '';
+      const failTime = tbState.translationFailTime || 0;
+
+      if (tbState.quickHash === currentHash) {
+        if (tbState.translatedText || (Date.now() - failTime < 10000)) {
+          return;
+        }
+      }
+
       const { sourceText, entityMap } = extractRichText(textBox);
       if (!sourceText || sourceText.trim() === '') return;
 
       const textWithoutMarkers = sourceText.replace(/__X_TRANSLATE_\d+__/g, '').trim();
       if (textWithoutMarkers === '') return;
 
-      const tbState = getState(textBox);
-      if (tbState.translatedText === sourceText) return;
-      const failTime = tbState.translationFailTime || 0;
+      if (!/\p{L}/u.test(textWithoutMarkers)) return;
+
+      if (tbState.translatedText === sourceText) {
+        tbState.quickHash = currentHash;
+        return;
+      }
       if (Date.now() - failTime < 10000) return;
 
       tbState.translatedText = sourceText;
+      tbState.quickHash = currentHash;
 
       const result = translationCache.get(sourceText);
 
@@ -515,6 +529,13 @@
             ? mutation.target
             : mutation.target.parentElement;
         if (el && el.closest) {
+          if (!el.closest('[data-testid="tweetText"]')) {
+            const text = el.textContent || '';
+            if (!/Translate|翻译|翻譯|Show original|显示原文|顯示原文/.test(text)) {
+              continue;
+            }
+          }
+
           const closestTweet = el.closest('[data-testid="tweet"]');
           if (closestTweet) {
             pendingTweets.add(closestTweet);
