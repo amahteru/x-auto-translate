@@ -382,9 +382,11 @@
     const detected = (result.detectedLang || '').toLowerCase();
 
     if (settings.targetLang.startsWith('zh')) {
-      if (detected.startsWith('zh') || ['yue', 'wyw', 'wuu', 'cht'].includes(detected)) return false;
-      
-      if (detected === 'en' && !/[a-zA-Z]/.test(sourceText) && /[\u4e00-\u9fa5]/.test(sourceText)) return false;
+      if (detected.startsWith('zh') || ['yue', 'wyw', 'wuu', 'cht'].includes(detected))
+        return false;
+
+      if (detected === 'en' && !/[a-zA-Z]/.test(sourceText) && /[\u4e00-\u9fa5]/.test(sourceText))
+        return false;
     } else {
       if (detected.startsWith(settings.targetLang.split('-')[0].toLowerCase())) return false;
     }
