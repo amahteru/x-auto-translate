@@ -45,6 +45,8 @@
   function resolveStatusPage(tweet, pageContext) {
     if (pageContext.isPhotoVideoOverlay) {
       if (tweet.closest('[role="dialog"]') !== null) return true;
+      const state = getState(tweet);
+      if (state.isStatusPage !== undefined) return state.isStatusPage;
       return false;
     }
     return !!pageContext.pageStatusId;
@@ -439,8 +441,10 @@
         return;
       }
 
+      const isStatusPage = resolveStatusPage(tweet, pageContext);
+      tweetState.isStatusPage = isStatusPage;
+
       if (settings.onlyComments) {
-        const isStatusPage = resolveStatusPage(tweet, pageContext);
         if (!isStatusPage) return;
 
         if (checkIsMainTweet(tweet, pageContext.pageStatusId)) {
