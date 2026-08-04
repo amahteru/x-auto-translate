@@ -373,6 +373,25 @@
     }
   }
 
+  function checkShouldShowTranslation(sourceText, result) {
+    if (!result || !result.translatedText) return false;
+
+    const normalize = (str) => str.replace(/[\s\p{P}\p{S}]/gu, '').toLowerCase();
+    if (normalize(result.translatedText) === normalize(sourceText)) return false;
+
+    const detected = (result.detectedLang || '').toLowerCase();
+
+    if (settings.targetLang.startsWith('zh')) {
+      if (detected.startsWith('zh') || ['yue', 'wyw', 'wuu', 'cht'].includes(detected)) return false;
+      
+      if (detected === 'en' && !/[a-zA-Z]/.test(sourceText) && /[\u4e00-\u9fa5]/.test(sourceText)) return false;
+    } else {
+      if (detected.startsWith(settings.targetLang.split('-')[0].toLowerCase())) return false;
+    }
+
+    return true;
+  }
+
   function doAsyncTranslate(textBox, sourceText, entityMap) {
     translateText(sourceText).then((result) => {
       if (result && result.translatedText) {
@@ -382,7 +401,7 @@
         }
         translationCache.set(sourceText, result);
 
-        if (!result.detectedLang.startsWith('zh')) {
+        if (checkShouldShowTranslation(sourceText, result)) {
           const currentExtracted = extractRichText(textBox).sourceText;
           if (currentExtracted === sourceText) {
             const richHtml = restoreRichText(result.translatedText, entityMap);
@@ -475,6 +494,12 @@
 
       if (!/\p{L}/u.test(textWithoutMarkers)) return;
 
+      if (settings.targetLang.startsWith('zh')) {
+        const lettersOnly = textWithoutMarkers.replace(/[^\p{L}]/gu, '');
+        const hasOtherLetters = /[^\u4e00-\u9fa5]/.test(lettersOnly);
+        if (!hasOtherLetters) return;
+      }
+
       if (tbState.translatedText === sourceText) {
         tbState.quickHash = currentHash;
         return;
@@ -487,7 +512,7 @@
       const result = translationCache.get(sourceText);
 
       if (result && result.translatedText) {
-        if (!result.detectedLang.startsWith('zh')) {
+        if (checkShouldShowTranslation(sourceText, result)) {
           const currentExtracted = extractRichText(textBox).sourceText;
           if (currentExtracted === sourceText) {
             const richHtml = restoreRichText(result.translatedText, entityMap);
