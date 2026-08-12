@@ -143,7 +143,7 @@
             traverse(child);
           }
         } else {
-          const marker = `__X_TRANSLATE_${entityIndex}__`;
+          const marker = `__X_${entityIndex}__`;
           sourceText += marker;
           entityMap[entityIndex] = node.outerHTML;
           entityIndex++;
@@ -160,7 +160,7 @@
 
   function restoreRichText(translatedText, entityMap) {
     const escapedText = escapeHtml(translatedText);
-    return escapedText.replace(/__\s*X_TRANSLATE_(\d+)\s*__/gi, (match, p1, offset, string) => {
+    return escapedText.replace(/__\s*X_(?:TRANSLATE_|翻译_|翻譯_)?(\d+)\s*__/gi, (match, p1, offset, string) => {
       const index = parseInt(p1, 10);
       if (entityMap[index]) {
         const entity = entityMap[index];
@@ -491,7 +491,7 @@
       const { sourceText, entityMap } = extractRichText(textBox);
       if (!sourceText || sourceText.trim() === '') return;
 
-      const textWithoutMarkers = sourceText.replace(/__X_TRANSLATE_\d+__/g, '').trim();
+      const textWithoutMarkers = sourceText.replace(/__X_\d+__/g, '').trim();
       if (textWithoutMarkers === '') return;
 
       if (!/\p{L}/u.test(textWithoutMarkers)) return;
