@@ -160,28 +160,31 @@
 
   function restoreRichText(translatedText, entityMap) {
     const escapedText = escapeHtml(translatedText);
-    return escapedText.replace(/__\s*X_(?:TRANSLATE_|翻译_|翻譯_)?(\d+)\s*__/gi, (match, p1, offset, string) => {
-      const index = parseInt(p1, 10);
-      if (entityMap[index]) {
-        const entity = entityMap[index];
-        if (entity.toLowerCase().startsWith('<a')) {
-          let prefix = '';
-          let suffix = '';
-          if (offset > 0 && !/[\s\n，。？！：；、,.?!:;]/.test(string[offset - 1])) {
-            prefix = ' ';
+    return escapedText.replace(
+      /__\s*X_(?:TRANSLATE_|翻译_|翻譯_)?(\d+)\s*__/gi,
+      (match, p1, offset, string) => {
+        const index = parseInt(p1, 10);
+        if (entityMap[index]) {
+          const entity = entityMap[index];
+          if (entity.toLowerCase().startsWith('<a')) {
+            let prefix = '';
+            let suffix = '';
+            if (offset > 0 && !/[\s\n，。？！：；、,.?!:;]/.test(string[offset - 1])) {
+              prefix = ' ';
+            }
+            if (
+              offset + match.length < string.length &&
+              !/[\s\n，。？！：；、,.?!:;]/.test(string[offset + match.length])
+            ) {
+              suffix = ' ';
+            }
+            return prefix + entity + suffix;
           }
-          if (
-            offset + match.length < string.length &&
-            !/[\s\n，。？！：；、,.?!:;]/.test(string[offset + match.length])
-          ) {
-            suffix = ' ';
-          }
-          return prefix + entity + suffix;
+          return entity;
         }
-        return entity;
-      }
-      return match;
-    });
+        return match;
+      },
+    );
   }
 
   async function translateText(text) {
