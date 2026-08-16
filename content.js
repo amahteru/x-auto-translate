@@ -118,7 +118,8 @@
 
     try {
       const languageNames = new Intl.DisplayNames(['zh-CN'], { type: 'language' });
-      return languageNames.of(shortCode);
+      const name = languageNames.of(shortCode);
+      return name && name !== shortCode ? name : '未知语言';
     } catch {
       return '未知语言';
     }
@@ -445,7 +446,9 @@
     if (!settings.enabled) return;
     const pageContext = getPageContext();
 
-    const tweets = specificTweets || document.querySelectorAll('[data-testid="tweet"]');
+    const tweets = specificTweets
+      ? specificTweets.filter((t) => t.isConnected)
+      : Array.from(document.querySelectorAll('[data-testid="tweet"]'));
     if (!tweets || tweets.length === 0) return;
 
     tweets.forEach((tweet) => {
