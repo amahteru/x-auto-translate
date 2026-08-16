@@ -201,7 +201,11 @@
             const data = response.data;
             if (data && data[0] && data[0].translations && data[0].translations.length > 0) {
               let translatedText = data[0].translations[0].text;
-              if (settings.targetLang.startsWith('zh') && !text.includes('简体中文') && !text.toLowerCase().includes('simplified chinese')) {
+              if (
+                settings.targetLang.startsWith('zh') &&
+                !text.includes('简体中文') &&
+                !text.toLowerCase().includes('simplified chinese')
+              ) {
                 translatedText = translatedText.replace(/\s*简体中文(?:（大陆）)?$/, '');
               }
               const detectedLang = data[0].detectedLanguage
