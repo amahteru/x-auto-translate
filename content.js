@@ -6,23 +6,30 @@
   }
 
   async function loadSettings() {
-    settings = await chrome.storage.local.get({
-      enabled: true,
-      targetLang: 'zh-CN',
-      onlyComments: false,
-    });
+    try {
+      settings = await chrome.storage.local.get({
+        enabled: true,
+        targetLang: 'zh-CN',
+        onlyComments: false,
+      });
+    } catch {
+    }
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (!isExtensionAlive()) return;
     if (area === 'local') {
-      if (changes.enabled) settings.enabled = changes.enabled.newValue;
+      if (changes.enabled) {
+        const wasEnabled = settings.enabled;
+        settings.enabled = changes.enabled.newValue;
+        if (!wasEnabled && settings.enabled) scheduleFlush();
+      }
       if (changes.targetLang) settings.targetLang = changes.targetLang.newValue;
       if (changes.onlyComments) settings.onlyComments = changes.onlyComments.newValue;
     }
   });
 
-  loadSettings();
+  await loadSettings();
 
   const nodeStateMap = new WeakMap();
 
@@ -544,6 +551,19 @@
   let observerFlushScheduled = false;
   const pendingTweets = new Set();
 
+  function scheduleFlush() {
+    if (observerFlushScheduled) return;
+    observerFlushScheduled = true;
+    queueMicrotask(() => {
+      observerFlushScheduled = false;
+      if (pendingTweets.size === 0) return;
+      if (settings.enabled) {
+        checkAllTweets(Array.from(pendingTweets));
+        pendingTweets.clear();
+      }
+    });
+  }
+
   const domObserver = new MutationObserver((mutations) => {
     if (!isExtensionAlive()) {
       domObserver.disconnect();
@@ -583,17 +603,11 @@
       }
     }
 
-    if (pendingTweets.size > 0 && !observerFlushScheduled) {
-      observerFlushScheduled = true;
-      queueMicrotask(() => {
-        observerFlushScheduled = false;
-        if (pendingTweets.size > 0) {
-          checkAllTweets(Array.from(pendingTweets));
-          pendingTweets.clear();
-        }
-      });
+    if (pendingTweets.size > 0) {
+      scheduleFlush();
     }
   });
 
   domObserver.observe(document.documentElement, { childList: true, subtree: true });
+  checkAllTweets();
 })();
