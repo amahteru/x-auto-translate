@@ -12,8 +12,7 @@
         targetLang: 'zh-CN',
         onlyComments: false,
       });
-    } catch {
-    }
+    } catch {}
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
